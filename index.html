@@ -1,0 +1,827 @@
+<!DOCTYPE html>
+<html lang="ceb">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+<title>Production Cost Calculator</title>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+  --bg:#f4f5f0;
+  --surface:#ffffff;
+  --surface2:#f0f1ec;
+  --border:rgba(0,0,0,0.09);
+  --border2:rgba(0,0,0,0.16);
+  --text:#1a1a18;
+  --text2:#6b6b67;
+  --text3:#9b9b96;
+  --green:#3b6d11;
+  --green-dark:#2a5009;
+  --green-light:#eaf3de;
+  --green-mid:#639922;
+  --teal:#0f6e56;
+  --teal-light:#e1f5ee;
+  --radius:8px;
+  --radius-lg:12px;
+  --shadow:0 1px 4px rgba(0,0,0,0.07);
+}
+
+html{scroll-behavior:smooth}
+
+body{
+  font-family:'Segoe UI',system-ui,-apple-system,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  min-height:100vh;
+  font-size:14px;
+  line-height:1.5;
+}
+
+/* ═══ HEADER ═══ */
+header{
+  background:linear-gradient(135deg,var(--green-dark) 0%,var(--green) 100%);
+  color:#fff;
+  padding:20px 16px 18px;
+  position:sticky;
+  top:0;
+  z-index:100;
+  box-shadow:0 2px 8px rgba(0,0,0,0.2);
+}
+
+.header-inner{max-width:960px;margin:0 auto}
+
+.header-top{
+  display:flex;
+  align-items:flex-start;
+  gap:10px;
+  margin-bottom:16px;
+}
+
+.header-emoji{font-size:28px;line-height:1;flex-shrink:0;margin-top:2px}
+
+.header-title-group{flex:1;min-width:0}
+
+.header-title-group label{
+  display:block;
+  font-size:10px;
+  font-weight:700;
+  letter-spacing:0.1em;
+  text-transform:uppercase;
+  opacity:0.6;
+  margin-bottom:4px;
+}
+
+.crop-input{
+  font-size:clamp(18px,4vw,24px);
+  font-weight:700;
+  font-family:inherit;
+  background:transparent;
+  border:none;
+  border-bottom:2px solid rgba(255,255,255,0.3);
+  color:#fff;
+  width:100%;
+  padding:2px 0 5px;
+  outline:none;
+  transition:border-color .2s;
+  letter-spacing:-0.01em;
+}
+.crop-input::placeholder{color:rgba(255,255,255,0.35)}
+.crop-input:focus{border-bottom-color:rgba(255,255,255,0.9)}
+
+/* toggle button for header fields on mobile */
+.header-toggle{
+  display:none;
+  align-items:center;
+  gap:6px;
+  background:rgba(255,255,255,0.15);
+  border:1px solid rgba(255,255,255,0.25);
+  border-radius:20px;
+  color:#fff;
+  font-family:inherit;
+  font-size:12px;
+  font-weight:600;
+  padding:5px 12px;
+  cursor:pointer;
+  margin-top:10px;
+  transition:background .2s;
+}
+.header-toggle:hover{background:rgba(255,255,255,0.22)}
+.header-toggle svg{width:14px;height:14px;transition:transform .25s}
+.header-toggle.open svg{transform:rotate(180deg)}
+
+.header-fields{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(180px,1fr));
+  gap:10px 18px;
+  transition:all .25s;
+}
+
+.hf{display:flex;flex-direction:column;gap:3px}
+
+.hf label{
+  font-size:10px;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:0.07em;
+  opacity:0.6;
+}
+
+.hf input{
+  font-family:inherit;
+  font-size:13px;
+  font-weight:500;
+  background:rgba(255,255,255,0.1);
+  border:none;
+  border-bottom:1px solid rgba(255,255,255,0.28);
+  color:#fff;
+  padding:4px 0 5px;
+  outline:none;
+  transition:background .2s,border-color .2s;
+  border-radius:0;
+  width:100%;
+  -webkit-appearance:none;
+}
+.hf input::placeholder{color:rgba(255,255,255,0.3)}
+.hf input:focus{background:rgba(255,255,255,0.16);border-bottom-color:rgba(255,255,255,0.85)}
+
+/* ═══ MAIN CONTAINER ═══ */
+.container{
+  max-width:960px;
+  margin:0 auto;
+  padding:16px 12px 40px;
+}
+
+/* ═══ SUMMARY CARDS ═══ */
+.summary-cards{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(120px,1fr));
+  gap:8px;
+  margin-bottom:14px;
+}
+
+.card{
+  background:var(--surface);
+  border-radius:var(--radius-lg);
+  border:1px solid var(--border);
+  padding:12px 14px;
+  box-shadow:var(--shadow);
+}
+
+.card.highlight{background:var(--green);border-color:var(--green)}
+
+.card-label{
+  font-size:10px;
+  font-weight:600;
+  text-transform:uppercase;
+  letter-spacing:0.05em;
+  color:var(--text2);
+  margin-bottom:5px;
+}
+
+.card.highlight .card-label{color:rgba(255,255,255,0.7)}
+
+.card-val{
+  font-size:clamp(15px,2.5vw,19px);
+  font-weight:700;
+  color:var(--text);
+  letter-spacing:-0.02em;
+  word-break:break-all;
+}
+
+.card.highlight .card-val{color:#fff}
+
+/* ═══ META ROW ═══ */
+.meta-row{
+  background:var(--surface);
+  border-radius:var(--radius-lg);
+  border:1px solid var(--border);
+  padding:10px 14px;
+  margin-bottom:12px;
+  display:flex;
+  align-items:center;
+  gap:10px;
+  flex-wrap:wrap;
+  box-shadow:var(--shadow);
+}
+
+.meta-row label{color:var(--text2);flex:1;min-width:140px;font-size:13px}
+
+.meta-row input[type=number]{
+  width:88px;
+  text-align:right;
+  font-size:14px;
+  font-family:inherit;
+  font-weight:700;
+  padding:6px 10px;
+  border:1px solid var(--border2);
+  border-radius:var(--radius);
+  background:var(--surface2);
+  color:var(--text);
+  outline:none;
+  transition:border-color .15s;
+  -webkit-appearance:none;
+}
+.meta-row input[type=number]:focus{border-color:var(--green-mid);background:var(--surface)}
+
+/* ═══ SECTION BLOCKS ═══ */
+.section-block{
+  background:var(--surface);
+  border-radius:var(--radius-lg);
+  border:1px solid var(--border);
+  margin-bottom:12px;
+  overflow:hidden;
+  box-shadow:var(--shadow);
+}
+
+.section-header{
+  background:var(--surface2);
+  padding:10px 14px;
+  font-size:11px;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:0.07em;
+  color:var(--text2);
+  border-bottom:1px solid var(--border);
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  cursor:pointer;
+  user-select:none;
+  -webkit-tap-highlight-color:transparent;
+}
+
+.section-header .toggle-icon{
+  font-size:16px;
+  color:var(--text3);
+  transition:transform .22s;
+  flex-shrink:0;
+}
+
+.section-header.collapsed .toggle-icon{transform:rotate(-90deg)}
+
+.section-body{overflow:hidden;transition:max-height .3s ease}
+.section-body.collapsed{max-height:0!important}
+
+/* ═══ TABLE WRAPPER — horizontal scroll on small screens ═══ */
+.table-scroll{overflow-x:auto;-webkit-overflow-scrolling:touch}
+
+table{
+  width:100%;
+  border-collapse:collapse;
+  font-size:13px;
+  min-width:420px;
+}
+
+thead th{
+  font-size:11px;
+  font-weight:600;
+  color:var(--text3);
+  text-align:right;
+  padding:8px 10px;
+  border-bottom:1px solid var(--border);
+  background:var(--surface2);
+  white-space:nowrap;
+}
+
+thead th:first-child{text-align:left}
+
+tbody tr.item td{
+  padding:7px 10px;
+  border-bottom:1px solid var(--border);
+  color:var(--text);
+  vertical-align:middle;
+}
+
+tbody tr.item td:not(:first-child){text-align:right}
+tbody tr.item:last-child td{border-bottom:none}
+tbody tr.item:hover td{background:var(--surface2)}
+
+.indent{padding-left:24px!important;color:var(--text2)!important}
+
+input[type=number].cell-input{
+  width:70px;
+  text-align:right;
+  font-size:13px;
+  font-family:inherit;
+  padding:4px 7px;
+  border:1px solid var(--border2);
+  border-radius:var(--radius);
+  background:var(--surface2);
+  color:var(--text);
+  transition:border-color .15s,background .15s;
+  outline:none;
+  -webkit-appearance:none;
+}
+
+input[type=number].cell-input:focus{
+  border-color:var(--green-mid);
+  background:var(--surface);
+}
+
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button{opacity:0.4}
+
+tr.subtotal td{
+  font-weight:700;
+  font-size:13px;
+  padding:8px 10px;
+  background:var(--green-light);
+  color:var(--green);
+  border-top:1px solid var(--border);
+}
+
+tr.subtotal td:not(:first-child){text-align:right}
+
+/* ═══ GRAND TOTAL ═══ */
+.grand-block{
+  background:var(--surface);
+  border-radius:var(--radius-lg);
+  border:1px solid var(--border);
+  overflow:hidden;
+  margin-bottom:12px;
+  box-shadow:var(--shadow);
+}
+
+.grand-block table{min-width:unset}
+
+.grand-block tbody tr td{
+  padding:12px 14px;
+  font-size:15px;
+  font-weight:700;
+  color:var(--text);
+  border-bottom:1px solid var(--border);
+}
+
+.grand-block tbody tr:last-child td{border-bottom:none}
+.grand-block tbody tr td:last-child{text-align:right}
+
+.note{
+  font-size:12px;
+  color:var(--text3);
+  padding:0 4px;
+  margin-top:4px;
+  line-height:1.6;
+}
+
+/* ═══ ANALYSIS BLOCK ═══ */
+.analysis-block{
+  background:var(--surface);
+  border-radius:var(--radius-lg);
+  border:1px solid var(--border);
+  margin-bottom:12px;
+  overflow:hidden;
+  box-shadow:var(--shadow);
+  margin-top:20px;
+}
+
+.analysis-header{
+  background:var(--teal);
+  padding:10px 14px;
+  font-size:11px;
+  font-weight:700;
+  text-transform:uppercase;
+  letter-spacing:0.07em;
+  color:rgba(255,255,255,0.85);
+}
+
+.analysis-table{width:100%;border-collapse:collapse;font-size:13px;min-width:unset}
+
+.analysis-table tr td{
+  padding:10px 14px;
+  border-bottom:1px solid var(--border);
+  color:var(--text);
+  vertical-align:middle;
+}
+
+.analysis-table tr:last-child td{border-bottom:none}
+.analysis-table tr td:last-child{text-align:right;font-weight:600}
+.analysis-table tr td:first-child{color:var(--text2)}
+
+.analysis-table tr.computed td{background:var(--green-light)}
+.analysis-table tr.computed td:first-child{color:var(--green);font-weight:600}
+.analysis-table tr.computed td:last-child{color:var(--green)}
+
+.analysis-table tr.markup-row td{background:var(--teal-light)}
+.analysis-table tr.markup-row td:first-child{color:var(--teal);font-weight:600}
+.analysis-table tr.markup-row td:last-child{color:var(--teal);font-size:15px}
+
+.yield-input{
+  width:72px;
+  text-align:right;
+  font-size:13px;
+  font-family:inherit;
+  font-weight:600;
+  padding:4px 7px;
+  border:1px solid var(--border2);
+  border-radius:var(--radius);
+  background:var(--surface2);
+  color:var(--text);
+  outline:none;
+  transition:border-color .15s;
+  -webkit-appearance:none;
+}
+
+.yield-input:focus{border-color:var(--green-mid);background:var(--surface)}
+
+.harvest-flex{
+  display:flex;
+  align-items:center;
+  justify-content:flex-end;
+  gap:5px;
+  flex-wrap:wrap;
+  font-size:13px;
+}
+
+/* ═══ FOOTER ═══ */
+footer{
+  text-align:center;
+  font-size:11px;
+  color:var(--text3);
+  padding:20px 16px 32px;
+}
+
+/* ═══ RESPONSIVE ═══ */
+@media(max-width:600px){
+  header{padding:14px 12px 14px;position:relative}
+  .header-top{margin-bottom:12px}
+  .crop-input{font-size:20px}
+  .header-toggle{display:flex}
+  .header-fields{grid-template-columns:1fr 1fr}
+  .header-fields.collapsed{display:none}
+
+  .summary-cards{grid-template-columns:repeat(2,1fr)}
+  .card{padding:10px 12px}
+  .card-val{font-size:15px}
+
+  .container{padding:12px 10px 32px}
+
+  table{min-width:380px;font-size:12px}
+  thead th,tbody tr.item td,tr.subtotal td{padding:6px 8px}
+  input[type=number].cell-input{width:58px;font-size:12px;padding:3px 5px}
+
+  .analysis-table{min-width:unset}
+  .analysis-table tr td{padding:8px 12px;font-size:12px}
+  .harvest-flex{gap:4px;font-size:12px}
+  .yield-input{width:60px;font-size:12px}
+
+  .grand-block tbody tr td{font-size:14px;padding:10px 12px}
+}
+
+@media(min-width:601px) and (max-width:768px){
+  .header-fields{grid-template-columns:repeat(3,1fr)}
+  .summary-cards{grid-template-columns:repeat(3,1fr)}
+}
+
+@media(min-width:769px){
+  .header-fields{grid-template-columns:repeat(5,1fr)}
+  .summary-cards{grid-template-columns:repeat(5,1fr)}
+}
+
+/* touch tap highlight removal */
+input,button{-webkit-tap-highlight-color:transparent}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="header-top">
+      <span class="header-emoji">🌿</span>
+      <div class="header-title-group">
+        <label for="crop-name">Tanom (Commodity)</label>
+        <input class="crop-input" id="crop-name" type="text" placeholder="e.g. Ampalaya, Sitaw, Okra…" value="Ampalaya" autocomplete="off">
+      </div>
+    </div>
+    <button class="header-toggle" id="header-toggle" aria-expanded="false">
+      <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2"><polyline points="4,6 8,10 12,6"/></svg>
+      Farm Details
+    </button>
+    <div class="header-fields" id="header-fields">
+      <div class="hf">
+        <label for="f-kadaghanon">Kadaghanon sa Tanom</label>
+        <input id="f-kadaghanon" type="text" placeholder="e.g. 111 hills" autocomplete="off">
+      </div>
+      <div class="hf">
+        <label for="f-area">Kaluagon (Area)</label>
+        <input id="f-area" type="text" placeholder="e.g. 1 Module / 100 sq.m." value="1 Module / 100 square meters" autocomplete="off">
+      </div>
+      <div class="hf">
+        <label for="f-cluster">Cluster Location</label>
+        <input id="f-cluster" type="text" placeholder="e.g. Barangay, Municipality…" autocomplete="off">
+      </div>
+      <div class="hf">
+        <label for="f-petsa">Petsa (Date)</label>
+        <input id="f-petsa" type="date" autocomplete="off">
+      </div>
+      <div class="hf">
+        <label for="f-planting">Planting Distance</label>
+        <input id="f-planting" type="text" placeholder="e.g. 0.5m x 1m" autocomplete="off">
+      </div>
+    </div>
+  </div>
+</header>
+
+<div class="container">
+
+  <!-- SUMMARY CARDS -->
+  <div class="summary-cards">
+    <div class="card"><div class="card-label">I. Labor</div><div class="card-val" id="sum-labor">₱0.00</div></div>
+    <div class="card"><div class="card-label">II. Materials</div><div class="card-val" id="sum-mat">₱0.00</div></div>
+    <div class="card"><div class="card-label">III. Lot Rental</div><div class="card-val" id="sum-lot">₱0.00</div></div>
+    <div class="card highlight"><div class="card-label">Grand Total</div><div class="card-val" id="sum-total">₱0.00</div></div>
+    <div class="card highlight"><div class="card-label">Gasto / Tanom</div><div class="card-val" id="sum-per">₱0.00</div></div>
+  </div>
+
+  <!-- PLANT COUNT -->
+  <div class="meta-row">
+    <label for="plant-count">Ihap sa mga Tanom (para sa per-plant cost):</label>
+    <input type="number" id="plant-count" min="1" value="111">
+  </div>
+
+  <!-- SECTION I -->
+  <div class="section-block">
+    <div class="section-header" data-target="labor-body-wrap">
+      <span>I. Activity / Labor &amp; Services</span>
+      <span class="toggle-icon">▾</span>
+    </div>
+    <div class="section-body" id="labor-body-wrap">
+      <div class="table-scroll">
+        <table>
+          <thead><tr>
+            <th style="min-width:170px;text-align:left">Detalye</th>
+            <th>Sukod</th><th>Qty</th><th>Price/Unit (₱)</th><th>Kantidad (₱)</th>
+          </tr></thead>
+          <tbody id="labor-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION II -->
+  <div class="section-block">
+    <div class="section-header" data-target="mat-body-wrap">
+      <span>II. Materials</span>
+      <span class="toggle-icon">▾</span>
+    </div>
+    <div class="section-body" id="mat-body-wrap">
+      <div class="table-scroll">
+        <table>
+          <thead><tr>
+            <th style="min-width:170px;text-align:left">Detalye</th>
+            <th>Sukod</th><th>Qty</th><th>Price/Unit (₱)</th><th>Kantidad (₱)</th>
+          </tr></thead>
+          <tbody id="mat-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- SECTION III -->
+  <div class="section-block">
+    <div class="section-header" data-target="lot-body-wrap">
+      <span>III. Other Cost</span>
+      <span class="toggle-icon">▾</span>
+    </div>
+    <div class="section-body" id="lot-body-wrap">
+      <div class="table-scroll">
+        <table>
+          <thead><tr>
+            <th style="min-width:170px;text-align:left">Detalye</th>
+            <th>Sukod</th><th>Qty</th><th>Price/Unit (₱)</th><th>Kantidad (₱)</th>
+          </tr></thead>
+          <tbody id="lot-body"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- GRAND TOTAL -->
+  <div class="grand-block">
+    <table>
+      <tbody>
+        <tr><td><strong>GRAND TOTAL</strong></td><td id="grand-total">₱0.00</td></tr>
+        <tr><td><strong>Gasto matag Tanom</strong></td><td id="grand-per">₱0.00</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p class="note">* Trellis materials (bolos, alambri, lansang, twine) — one-time cost na pwedeng gamiton sa sunod nga cycle.</p>
+
+  <!-- ANALYSIS -->
+  <div class="analysis-block">
+    <div class="analysis-header">📊 Breakeven &amp; Selling Price Analysis</div>
+    <table class="analysis-table">
+      <tbody>
+        <tr>
+          <td>a. Total Production Gastos</td>
+          <td id="an-total">₱0.00</td>
+        </tr>
+        <tr>
+          <td>b. Abot o Harvest (kg)<br><small style="color:var(--text3);font-weight:400">(Yield/tanom × No. of tanom)</small></td>
+          <td>
+            <div class="harvest-flex">
+              <input class="yield-input" id="yield-per-plant" type="number" min="0" step="any" value="4.75"> kg/tanom
+              × <span id="an-plants" style="font-weight:700">111</span>
+              = <span id="an-harvest" style="color:var(--green);font-weight:700">0.00 kg</span>
+            </div>
+          </td>
+        </tr>
+        <tr class="computed">
+          <td>c. Break-even Cost (₱/kg) <small style="opacity:.65">= a ÷ b</small></td>
+          <td id="an-bec">₱0.00</td>
+        </tr>
+        <tr>
+          <td>d. Break-even Yield (kg) <small style="color:var(--text3)">= a ÷ e</small></td>
+          <td id="an-bey">0.00 kg</td>
+        </tr>
+        <tr class="markup-row">
+          <td>e. Selling Price
+            (<input id="base-markup" type="number" min="0" max="9999" step="1" value="100"
+              style="width:50px;text-align:right;font-size:13px;font-family:inherit;font-weight:700;
+                     padding:2px 5px;border:1px solid rgba(0,100,60,0.3);border-radius:6px;
+                     background:rgba(255,255,255,0.75);color:var(--teal);outline:none;-webkit-appearance:none">% mark-up)
+          </td>
+          <td id="an-sp">₱0.00</td>
+        </tr>
+        <tr>
+          <td>Abot o Yield (kg kada tanom)</td>
+          <td id="an-yield-display">0.00 kg</td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <p class="note" style="margin-bottom:8px">Formula: Break-even cost = Total Gastos ÷ Harvest kg &nbsp;|&nbsp; Selling price = Break-even cost × (1 + markup%)</p>
+
+</div>
+
+<footer>Production Cost Calculator &mdash; <span id="footer-crop">Ampalaya</span></footer>
+
+<script>
+// ─── DATA ───
+const laborData = [
+  {label:"a. Pag-andam sa seedlings", unit:"mh", qty:2, price:52.5},
+  {label:"b.1. Pagdaro / Cultivation", unit:"mh", qty:8, price:52.5, indent:true},
+  {label:"b.2. Paghimo ug bed o plots", unit:"mh", qty:4, price:52.5, indent:true},
+  {label:"b.3. Pagtaod sa Trellis", unit:"mh", qty:8, price:52.5, indent:true},
+  {label:"c. Transplanting / Sowing", unit:"mh", qty:4, price:52.5},
+  {label:"d.1. Inorganic - 14-14-14 (8x)", unit:"mh", qty:8, price:52.5, indent:true},
+  {label:"d.2. Inorganic - Urea (2x)", unit:"mh", qty:2, price:52.5, indent:true},
+  {label:"d.3. Inorganic 0-0-60 (2x)", unit:"mh", qty:2, price:52.5, indent:true},
+  {label:"d.4. Maintenance (4x)", unit:"mh", qty:4, price:52.5, indent:true},
+  {label:"f. Weeding ug paghabok (4x)", unit:"mh", qty:8, price:52.5},
+  {label:"g. Harvesting (16x in 2 months)", unit:"mh", qty:8, price:52.5},
+  {label:"h. Sorting and curing", unit:"mh", qty:0, price:0},
+  {label:"i. Sorting and packing", unit:"mh", qty:16, price:52.5},
+];
+
+const matData = [
+  {label:"a. Seeds", unit:"sds", qty:133.2, price:10},
+  {label:"b.4. Inorganic - 14-14-14 (Complete)", unit:"kg", qty:8.88, price:31.01, indent:true},
+  {label:"b.5. Inorganic - 46-0-0 (Urea)", unit:"kg", qty:1.11, price:30.7, indent:true},
+  {label:"b.6. Inorganic - 0-0-60 (Muriate of Potash)", unit:"kg", qty:1.11, price:28.36, indent:true},
+  {label:"b.7. Calcium Nitrate", unit:"kg", qty:0, price:0, indent:true},
+  {label:"b.8. Foliar fertilizer", unit:"ml", qty:0, price:0, indent:true},
+  {label:"c. Bamboo - bolos *", unit:"pcs", qty:5, price:100},
+  {label:"c. Alambri o Tie-wire *", unit:"kg", qty:1.25, price:95},
+  {label:"c. Lansang *", unit:"kg", qty:1.25, price:75},
+  {label:"c. Twine *", unit:"kg", qty:1.25, price:100},
+  {label:"c. Seedling tray *", unit:"pcs", qty:0, price:65},
+  {label:"c. Packaging - 10 kg LDPE Plastic bags", unit:"pcs", qty:0.5, price:700},
+  {label:"c. Packaging - 25 kg Jute bags", unit:"pcs", qty:0, price:0},
+  {label:"c. Packaging - Wooden Crates", unit:"pcs", qty:0, price:35},
+];
+
+const lotData = [
+  {label:"Lot Rental", unit:"", qty:0, price:0},
+];
+
+// ─── FORMAT ───
+function fmt(n){
+  return '₱'+n.toLocaleString('en-PH',{minimumFractionDigits:2,maximumFractionDigits:2});
+}
+function fmtN(n,dec=2){
+  return n.toLocaleString('en-PH',{minimumFractionDigits:dec,maximumFractionDigits:dec});
+}
+
+// ─── BUILD TABLES ───
+function buildTable(data, tbodyId, sectionKey){
+  const tbody = document.getElementById(tbodyId);
+  data.forEach((row,i)=>{
+    const tr = document.createElement('tr');
+    tr.className='item';
+    tr.innerHTML=`
+      <td class="${row.indent?'indent':''}">${row.label}</td>
+      <td style="color:var(--text3);white-space:nowrap">${row.unit||''}</td>
+      <td><input class="cell-input" type="number" min="0" step="any" value="${row.qty}" data-sec="${sectionKey}" data-idx="${i}" data-field="qty"></td>
+      <td><input class="cell-input" type="number" min="0" step="any" value="${row.price}" data-sec="${sectionKey}" data-idx="${i}" data-field="price"></td>
+      <td class="amt-cell" style="white-space:nowrap">${fmt(row.qty*row.price)}</td>`;
+    tbody.appendChild(tr);
+  });
+  const sub=document.createElement('tr');
+  sub.className='subtotal';
+  sub.innerHTML=`<td colspan="4">Sub-Total</td><td id="sub-val-${sectionKey}" style="white-space:nowrap"></td>`;
+  tbody.appendChild(sub);
+}
+
+// ─── RECALC ───
+function recalc(){
+  const plants=parseFloat(document.getElementById('plant-count').value)||1;
+  let totals={labor:0,mat:0,lot:0};
+
+  ['labor','mat','lot'].forEach(sec=>{
+    const arr=sec==='labor'?laborData:sec==='mat'?matData:lotData;
+    let s=0;
+    arr.forEach(r=>s+=r.qty*r.price);
+    totals[sec]=s;
+    document.getElementById('sub-val-'+sec).textContent=fmt(s);
+  });
+
+  document.querySelectorAll('[data-sec]').forEach(inp=>{
+    const sec=inp.dataset.sec,idx=+inp.dataset.idx;
+    const arr=sec==='labor'?laborData:sec==='mat'?matData:lotData;
+    inp.closest('tr').querySelector('.amt-cell').textContent=fmt(arr[idx].qty*arr[idx].price);
+  });
+
+  const grand=totals.labor+totals.mat+totals.lot;
+  const perPlant=grand/plants;
+
+  document.getElementById('sum-labor').textContent=fmt(totals.labor);
+  document.getElementById('sum-mat').textContent=fmt(totals.mat);
+  document.getElementById('sum-lot').textContent=fmt(totals.lot);
+  document.getElementById('sum-total').textContent=fmt(grand);
+  document.getElementById('sum-per').textContent=fmt(perPlant);
+  document.getElementById('grand-total').textContent=fmt(grand);
+  document.getElementById('grand-per').textContent=fmt(perPlant);
+
+  // title
+  const crop=document.getElementById('crop-name').value.trim()||'Vegetable';
+  document.title=crop+' — Production Cost Calculator';
+  document.getElementById('footer-crop').textContent=crop;
+
+  // analysis
+  const ypp=parseFloat(document.getElementById('yield-per-plant').value)||0;
+  const harvest=ypp*plants;
+  const bec=harvest>0?grand/harvest:0;
+  const basePct=parseFloat(document.getElementById('base-markup').value)||100;
+  const sp=bec*(1+basePct/100);
+  const bey=sp>0?grand/sp:0;
+
+  document.getElementById('an-total').textContent=fmt(grand);
+  document.getElementById('an-plants').textContent=plants.toLocaleString('en-PH');
+  document.getElementById('an-harvest').textContent=fmtN(harvest)+' kg';
+  document.getElementById('an-bec').textContent=fmt(bec);
+  document.getElementById('an-bey').textContent=fmtN(bey)+' kg';
+  document.getElementById('an-sp').textContent=fmt(sp);
+  document.getElementById('an-yield-display').textContent=fmtN(ypp)+' kg';
+}
+
+// ─── COLLAPSIBLE SECTIONS ───
+function initSectionToggles(){
+  document.querySelectorAll('.section-header[data-target]').forEach(hdr=>{
+    const body=document.getElementById(hdr.dataset.target);
+    // set initial height so CSS transition works
+    body.style.maxHeight=body.scrollHeight+'px';
+    hdr.addEventListener('click',()=>{
+      const collapsed=body.classList.toggle('collapsed');
+      hdr.classList.toggle('collapsed',collapsed);
+      if(!collapsed) body.style.maxHeight=body.scrollHeight+'px';
+    });
+  });
+}
+
+// ─── MOBILE HEADER TOGGLE ───
+const headerToggle=document.getElementById('header-toggle');
+const headerFields=document.getElementById('header-fields');
+headerToggle.addEventListener('click',()=>{
+  const open=headerFields.classList.toggle('collapsed');
+  headerToggle.classList.toggle('open',!open);
+  headerToggle.setAttribute('aria-expanded',String(!open));
+});
+// on mobile, start collapsed
+if(window.innerWidth<=600){
+  headerFields.classList.add('collapsed');
+  headerToggle.classList.remove('open');
+}
+
+// ─── INPUT EVENTS ───
+document.addEventListener('input',e=>{
+  const el=e.target;
+  if(el.dataset.sec){
+    const sec=el.dataset.sec,idx=+el.dataset.idx,field=el.dataset.field;
+    const arr=sec==='labor'?laborData:sec==='mat'?matData:lotData;
+    arr[idx][field]=parseFloat(el.value)||0;
+  }
+  recalc();
+});
+
+// ─── INIT ───
+buildTable(laborData,'labor-body','labor');
+buildTable(matData,'mat-body','mat');
+buildTable(lotData,'lot-body','lot');
+initSectionToggles();
+recalc();
+</script>
+</body>
+</html>

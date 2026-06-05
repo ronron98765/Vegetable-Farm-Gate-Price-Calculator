@@ -718,15 +718,22 @@ function buildTable(data, tbodyId, sectionKey){
     const tr = document.createElement('tr');
     tr.className='item';
     
-    // Check if the row is marked as a label (isHeader)
     if (row.isHeader) {
-      tr.innerHTML = `
-        <td colspan="5" style="padding-top: 12px; padding-bottom: 4px;">${row.label}</td>`;
+      // Keep the clean label style from our previous edit
+      tr.innerHTML = `<td colspan="5" style="padding-top:12px; padding-bottom:4px;">${row.label}</td>`;
     } else {
-      // Standard row with input boxes
       tr.innerHTML=`
         <td class="${row.indent?'indent':''}">${row.label}</td>
-        <td style="color:var(--text3);white-space:nowrap">${row.unit||''}</td>
+        <td>
+          <select class="cell-input" data-sec="${sectionKey}" data-idx="${i}" data-field="unit" style="width:70px; background-position: right 4px center;">
+            <option value="mh" ${row.unit==='mh'?'selected':''}>mh</option>
+            <option value="kg" ${row.unit==='kg'?'selected':''}>kg</option>
+            <option value="pcs" ${row.unit==='pcs'?'selected':''}>pcs</option>
+            <option value="ml" ${row.unit==='ml'?'selected':''}>ml</option>
+            <option value="sds" ${row.unit==='sds'?'selected':''}>sds</option>
+            <option value="" ${!row.unit?'selected':''}>-</option>
+          </select>
+        </td>
         <td><input class="cell-input" type="number" min="0" step="any" value="${row.qty}" data-sec="${sectionKey}" data-idx="${i}" data-field="qty"></td>
         <td><input class="cell-input" type="number" min="0" step="any" value="${row.price}" data-sec="${sectionKey}" data-idx="${i}" data-field="price"></td>
         <td class="amt-cell" style="white-space:nowrap">${fmt(row.qty*row.price)}</td>`;
@@ -823,12 +830,18 @@ if(window.innerWidth<=600){
 }
 
 // ─── INPUT EVENTS ───
-document.addEventListener('input',e=>{
-  const el=e.target;
+document.addEventListener('input', e => {
+  const el = e.target;
   if(el.dataset.sec){
-    const sec=el.dataset.sec,idx=+el.dataset.idx,field=el.dataset.field;
-    const arr=sec==='labor'?laborData:sec==='mat'?matData:lotData;
-    arr[idx][field]=parseFloat(el.value)||0;
+    const sec = el.dataset.sec, idx = +el.dataset.idx, field = el.dataset.field;
+    const arr = sec === 'labor' ? laborData : sec === 'mat' ? matData : lotData;
+    
+    // Check if we are changing the unit dropdown
+    if (field === 'unit') {
+      arr[idx][field] = el.value; // Save as text
+    } else {
+      arr[idx][field] = parseFloat(el.value) || 0; // Save as number
+    }
   }
   recalc();
 });

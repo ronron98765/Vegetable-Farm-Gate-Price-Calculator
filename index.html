@@ -354,7 +354,7 @@ input,button{-webkit-tap-highlight-color:transparent}
         <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
           <path d="M13 11v2a1 1 0 01-1 1H4a1 1 0 01-1-1V4a1 1 0 011-1h6l3 3v5z"/><rect x="5" y="8" width="6" height="5" rx=".5"/><rect x="5" y="2" width="5" height="3" rx=".5"/>
         </svg>
-        Save Snapshot
+        Save Computation
       </button>
       <button class="hbtn" id="btn-load" title="View and load saved Computation">
         <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -404,7 +404,7 @@ input,button{-webkit-tap-highlight-color:transparent}
   <!-- SAVES PANEL -->
   <div class="saves-panel" id="saves-panel">
     <div class="saves-panel-header">
-      <span>💾 Saved Computa</span>
+      <span>💾 Saved Computation</span>
       <button class="saves-close" id="saves-close" title="Close">×</button>
     </div>
     <div id="saves-list-wrap"></div>
@@ -834,7 +834,7 @@ function renderSavesList(){
   const wrap = document.getElementById('saves-list-wrap');
   const snaps = getSnapshots();
   if (snaps.length === 0) {
-    wrap.innerHTML = '<div class="saves-empty">Walay natigom nga snapshot. I-click ang "Save Snapshot" para magsave.</div>';
+    wrap.innerHTML = '<div class="saves-empty">Walay natigom nga Computation. I-click ang "Save Computation" para magsave.</div>';
     return;
   }
   const list = document.createElement('div');

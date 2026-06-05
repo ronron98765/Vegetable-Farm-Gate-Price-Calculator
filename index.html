@@ -664,12 +664,12 @@ input,button{-webkit-tap-highlight-color:transparent}
 // ─── DATA ───
 const laborData = [
   {label:"a. Pag-andam sa seedlings", unit:"mh", qty:2, price:52.5},
-  {label:"b. Land Preparation", unit:"mh", qty:0, price:0},
+  {label:"b. Land Preparation", unit:"mh", qty:0, price:0, isHeader: true},
   {label:"b.1. Pagdaro / Cultivation", unit:"mh", qty:8, price:52.5, indent:true},
   {label:"b.2. Paghimo ug bed o plots", unit:"mh", qty:4, price:52.5, indent:true},
   {label:"b.3. Pagtaod sa Trellis", unit:"mh", qty:8, price:52.5, indent:true},
   {label:"c. Transplanting / Sowing", unit:"mh", qty:4, price:52.5},
-  {label:"d. Pag Abono", unit:"mh", qty:0, price:0},
+  {label:"d. Pag Abono", unit:"mh", qty:0, price:0,isHeader: true},
   {label:"d.1. Inorganic - 14-14-14", unit:"mh", qty:8, price:52.5, indent:true},
   {label:"d.2. Inorganic - Urea", unit:"mh", qty:2, price:52.5, indent:true},
   {label:"d.3. Inorganic 0-0-60", unit:"mh", qty:2, price:52.5, indent:true},
@@ -682,13 +682,13 @@ const laborData = [
 
 const matData = [
   {label:"a. Seeds", unit:"sds", qty:133.2, price:10},
-  {label:"b. Fertilizers & Other Inputs", unit:"sds", qty:133.2, price:10},
+  {label:"b. Fertilizers & Other Inputs", unit:"sds", qty:133.2, price:10, isHeader: true},
   {label:"b.4. Inorganic - 14-14-14 (Complete)", unit:"kg", qty:8.88, price:31.01, indent:true},
   {label:"b.5. Inorganic - 46-0-0 (Urea)", unit:"kg", qty:1.11, price:30.7, indent:true},
   {label:"b.6. Inorganic - 0-0-60 (Muriate of Potash)", unit:"kg", qty:1.11, price:28.36, indent:true},
   {label:"b.7. Calcium Nitrate", unit:"kg", qty:0, price:0, indent:true},
   {label:"b.8. Foliar fertilizer", unit:"ml", qty:0, price:0, indent:true},
-  {label:"c. Others", unit:"ml", qty:0, price:0},
+  {label:"c. Others", unit:"ml", qty:0, price:0, isHeader: true},
   {label:"c.1 Bamboo - bolos ", unit:"pcs", qty:5, price:100, indent:true},
   {label:"c.2 Alambri o Tie-wire ", unit:"kg", qty:1.25, price:95, indent:true},
   {label:"c.3 Lansang ", unit:"kg", qty:1.25, price:75, indent:true},
@@ -717,12 +717,21 @@ function buildTable(data, tbodyId, sectionKey){
   data.forEach((row,i)=>{
     const tr = document.createElement('tr');
     tr.className='item';
-    tr.innerHTML=`
-      <td class="${row.indent?'indent':''}">${row.label}</td>
-      <td style="color:var(--text3);white-space:nowrap">${row.unit||''}</td>
-      <td><input class="cell-input" type="number" min="0" step="any" value="${row.qty}" data-sec="${sectionKey}" data-idx="${i}" data-field="qty"></td>
-      <td><input class="cell-input" type="number" min="0" step="any" value="${row.price}" data-sec="${sectionKey}" data-idx="${i}" data-field="price"></td>
-      <td class="amt-cell" style="white-space:nowrap">${fmt(row.qty*row.price)}</td>`;
+    
+    // Check if the row is marked as a header/label
+    if (row.isHeader) {
+      tr.innerHTML = `
+        <td style="font-weight:700; color:var(--green); background:var(--surface2)">${row.label}</td>
+        <td></td><td></td><td></td><td class="amt-cell"></td>`;
+    } else {
+      // Standard row with input boxes
+      tr.innerHTML=`
+        <td class="${row.indent?'indent':''}">${row.label}</td>
+        <td style="color:var(--text3);white-space:nowrap">${row.unit||''}</td>
+        <td><input class="cell-input" type="number" min="0" step="any" value="${row.qty}" data-sec="${sectionKey}" data-idx="${i}" data-field="qty"></td>
+        <td><input class="cell-input" type="number" min="0" step="any" value="${row.price}" data-sec="${sectionKey}" data-idx="${i}" data-field="price"></td>
+        <td class="amt-cell" style="white-space:nowrap">${fmt(row.qty*row.price)}</td>`;
+    }
     tbody.appendChild(tr);
   });
   const sub=document.createElement('tr');

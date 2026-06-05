@@ -720,11 +720,15 @@ function buildTable(data, tbodyId, sectionKey){
         <td class="${row.indent ? 'indent' : ''}">${row.label}</td>
         <td>
           <select class="cell-input" data-sec="${sectionKey}" data-idx="${i}" data-field="unit">
-            <option value="mh" ${row.unit==='mh'?'selected':''}>mh</option>
-            <option value="kg" ${row.unit==='kg'?'selected':''}>kg</option>
+            <option value="man hour (mh)" ${row.unit==='mh'?'selected':''}>mh</option>
+            <option value="day" ${row.unit==='mh'?'selected':''}>mh</option>
+            <option value="packs" ${row.unit==='mh'?'selected':''}>mh</option>
+            <option value="Kilogram(kg)" ${row.unit==='kg'?'selected':''}>kg</option>
+            <option value="gram(g)" ${row.unit==='mh'?'selected':''}>mh</option>
             <option value="pcs" ${row.unit==='pcs'?'selected':''}>pcs</option>
-            <option value="ml" ${row.unit==='ml'?'selected':''}>ml</option>
-            <option value="sds" ${row.unit==='sds'?'selected':''}>sds</option>
+            <option value="milliliter(ml)" ${row.unit==='ml'?'selected':''}>ml</option>
+            <option value="seeds(sds)" ${row.unit==='sds'?'selected':''}>sds</option>
+            <option value="other" ${row.unit==='sds'?'selected':''}>sds</option>
             <option value="" ${!row.unit?'selected':''}>-</option>
           </select>
         </td>

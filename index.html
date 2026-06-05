@@ -751,12 +751,14 @@ function recalc(){
   });
 
   const grand=totals.labor+totals.mat+totals.lot;
+  const gate=totals.labor+totals.mat+totals.lot+1;
   const perPlant=grand/plants;
 
   document.getElementById('sum-labor').textContent=fmt(totals.labor);
   document.getElementById('sum-mat').textContent=fmt(totals.mat);
   document.getElementById('sum-lot').textContent=fmt(totals.lot);
   document.getElementById('sum-total').textContent=fmt(grand);
+  document.getElementById('sum-total').textContent=fmt(gate);
   document.getElementById('sum-per').textContent=fmt(perPlant);
   document.getElementById('grand-total').textContent=fmt(grand);
   document.getElementById('grand-per').textContent=fmt(perPlant);

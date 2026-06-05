@@ -769,7 +769,7 @@ function recalc(){
 
   // analysis
   const ypp=parseFloat(document.getElementById('yield-per-plant').value)||0;
-  const harvest=ypp*plants;
+  const harvest=ypp*plants*0.85;
   const bec=harvest>0?grand/harvest:0;
   const basePct=parseFloat(document.getElementById('base-markup').value)||100;
   const sp=bec*(1+basePct/100);

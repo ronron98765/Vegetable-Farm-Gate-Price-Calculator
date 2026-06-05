@@ -718,11 +718,10 @@ function buildTable(data, tbodyId, sectionKey){
     const tr = document.createElement('tr');
     tr.className='item';
     
-    // Check if the row is marked as a header/label
+    // Check if the row is marked as a label (isHeader)
     if (row.isHeader) {
       tr.innerHTML = `
-        <td style="font-weight:700; color:var(--green); background:var(--surface2)">${row.label}</td>
-        <td></td><td></td><td></td><td class="amt-cell"></td>`;
+        <td colspan="5" style="padding-top: 12px; padding-bottom: 4px;">${row.label}</td>`;
     } else {
       // Standard row with input boxes
       tr.innerHTML=`

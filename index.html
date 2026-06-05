@@ -530,7 +530,7 @@ input,button{-webkit-tap-highlight-color:transparent}
     <div class="card"><div class="card-label">II. Materials</div><div class="card-val" id="sum-mat">₱0.00</div></div>
     <div class="card"><div class="card-label">III. Other Cost</div><div class="card-val" id="sum-lot">₱0.00</div></div>
     <div class="card highlight"><div class="card-label">Total Production Cost</div><div class="card-val" id="sum-total">₱0.00</div></div>
-    <div class="card highlight"><div class="card-label">Farm Gate Price </div><div class="card-val" id="sum-total">₱0.00</div></div>
+    <div class="card highlight"><div class="card-label">Farm Gate Price </div><div class="card-val" id="sum-sp">₱0.00</div></div>
     <div class="card highlight"><div class="card-label">Gasto / Tanom</div><div class="card-val" id="sum-per">₱0.00</div></div>
   </div>
 
@@ -781,8 +781,8 @@ function recalc(){
   const harvest=ypp*plants*0.85;
   const bec=harvest>0?grand/harvest:0;
   const basePct=parseFloat(document.getElementById('base-markup').value)||100;
-  const sp=bec*(1+basePct/100);
-  const bey=sp>0?grand/sp:0;
+  const sp = bec * (1 + basePct / 100); // Calculate the Selling Price
+  document.getElementById('sum-sp').textContent = fmt(sp); // Update the summary card  const bey=sp>0?grand/sp:0;
 
   document.getElementById('an-total').textContent=fmt(grand);
   document.getElementById('an-plants').textContent=plants.toLocaleString('en-PH');
